@@ -1,42 +1,50 @@
 import React from 'react';
+import StoryIndex from '../components/StoryIndex';
 
 class StoryContainer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      topStories: [],
+      stories: [],
     }
   }
 
   componentDidMount(){
 
-    //all of the story ids
     const url = "https://hacker-news.firebaseio.com/v0/topstories.json"
+    const allTopStories = []
     
-    fetch(url) //asking to get all the story ids
-    .then(res => res.json()) //promising to return json when they've been fetched
+    fetch(url)
+    .then(res => res.json()) 
 
     .then(topStoriesIds => {
-        const allTopStories = []
-        topStoriesIds.map( id => {
-            fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`) //then we're taking each id and adding it into the story item url
-            .then(res => res.json()) //then we'll turn it into a json object
-            .then(data => allTopStories.push(data)) //then we'll push it into the alltopstories array
+        console.log("startingMap")
+        const tenStoryIds = topStoriesIds.slice(0,15)
+        tenStoryIds.forEach( id => {
+            fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+            .then(res => res.json()) 
+            .then((data) => {
+              console.log("fetched individual data")
+              allTopStories.push(data)
+            }) 
             .catch(err => console.err(err)) 
-            return allTopStories // finally we'll return all of the top stories
-        }) 
-        console.log(allTopStories)
+        })
+        
     })
     .catch(err => console.err(err))
 
+    this.setState({stories: allTopStories})
     
   }
 
-  
-
   render() {
     return(
-      <h1>Ariane</h1>
+        <>
+        <h1>Story Container</h1>
+        <StoryIndex
+        stories={this.state.stories}>
+        </StoryIndex>
+      </>
     )
   }
 }
